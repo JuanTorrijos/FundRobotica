@@ -53,39 +53,39 @@ class Planner():
     self.eef_link = eef_link
     self.group_names = group_names
     
-    pose_goal = Pose()
-    pose_goal.orientation.w = 1.0
-    pose_goal.position.x = 0.4
-    pose_goal.position.y = 0.1
-    pose_goal.position.z = 0.4
-    print pose_goal
-
-    move_group.set_pose_target(pose_goal)
+##    pose_goal = Pose()
+##    pose_goal.orientation.w = 1.0
+##    pose_goal.position.x = 0.4
+##    pose_goal.position.y = 0.1
+##    pose_goal.position.z = 0.4
+##    print pose_goal
+##
+##    move_group.set_pose_target(pose_goal)
     #print pose_goal
-    waypoints = []
-    scale = 1.0
-
-    wpose = move_group.get_current_pose().pose
-    wpose.position.z -= scale * 0.1  # First move up (z)
-    wpose.position.y += scale * 0.2  # and sideways (y)
-    waypoints.append(copy.deepcopy(wpose))
-
-    wpose.position.x += scale * 0.1  # Second move forward/backwards in (x)
-    waypoints.append(copy.deepcopy(wpose))
-
-    wpose.position.y -= scale * 0.1  # Third move sideways (y)
-    waypoints.append(copy.deepcopy(wpose))
+##    waypoints = []
+##    scale = 1.0
+##
+##    wpose = move_group.get_current_pose().pose
+##    wpose.position.z -= scale * 0.1  # First move up (z)
+##    wpose.position.y += scale * 0.2  # and sideways (y)
+##    waypoints.append(copy.deepcopy(wpose))
+##
+##    wpose.position.x += scale * 0.1  # Second move forward/backwards in (x)
+##    waypoints.append(copy.deepcopy(wpose))
+##
+##    wpose.position.y -= scale * 0.1  # Third move sideways (y)
+##    waypoints.append(copy.deepcopy(wpose))
+##    
+##    (plan, fraction) = move_group.compute_cartesian_path(
+##                                       waypoints,   # waypoints to follow
+##                                       0.01,        # eef_step
+##                                       0.0)         # jump_threshold
+##    display_trajectory = moveit_msgs.msg.DisplayTrajectory()
+##    display_trajectory.trajectory_start = robot.get_current_state()
+##    display_trajectory.trajectory.append(plan)
+##    display_trajectory_publisher.publish(display_trajectory);
     
-    (plan, fraction) = move_group.compute_cartesian_path(
-                                       waypoints,   # waypoints to follow
-                                       0.01,        # eef_step
-                                       0.0)         # jump_threshold
-    display_trajectory = moveit_msgs.msg.DisplayTrajectory()
-    display_trajectory.trajectory_start = robot.get_current_state()
-    display_trajectory.trajectory.append(plan)
-    display_trajectory_publisher.publish(display_trajectory);
-    
-    move_group.execute(plan, wait=True)
+##    move_group.execute(plan, wait=True)
 ##    move_group.go(pose_goal, wait=True)
 ##    move_group.stop()
 ##    move_group.clear_pose_targets()
@@ -128,9 +128,29 @@ class Planner():
     #TODO: Code used to move to a given position using move it
     #============================Lo que hice===================
     self.move_group.set_pose_target(pose_goal)
-    plan = self.move_group.go(wait=True)
-    self.move_group.stop()
-    self.move_group.clear_pose_targets()
+    plan = self.move_group.go()
+##    plan = self.move_group.go(wait=True)
+##    self.move_group.stop()
+##    self.move_group.clear_pose_targets()
+##    waypoints = []
+##    scale = 1.0
+##
+##    wpose = self.move_group.get_current_pose().pose
+##    wpose.position.z -= scale * 0.1  # First move up (z)
+##    wpose.position.y += scale * 0.2  # and sideways (y)
+##    waypoints.append(copy.deepcopy(wpose))
+##
+##    wpose.position.x += scale * 0.1  # Second move forward/backwards in (x)
+##    waypoints.append(copy.deepcopy(wpose))
+##
+##    wpose.position.y -= scale * 0.1  # Third move sideways (y)
+##    waypoints.append(copy.deepcopy(wpose))
+##    
+##    (plan, fraction) = self.move_group.compute_cartesian_path(
+##                                       waypoints,   # waypoints to follow
+##                                       0.01,        # eef_step
+##                                       0.0)         # jump_threshold
+##    self.move_group.execute(plan, wait=True)
     #============================Lo que hice===================
 
 
@@ -173,12 +193,15 @@ class myNode():
     self.planner.addObstacles()
     
     #============================Lo que hice===================
-##    pose_goal = Pose()
-##    pose_goal.orientation.w = 1.0
-##    pose_goal.position.x = 0.4
-##    pose_goal.position.y = 0.1
-##    pose_goal.position.z = 0.4
-##    self.planner.goToPose(pose_goal)
+    pose_goal = Pose()
+    pose_goal.orientation.w = 1.0
+    pose_goal.orientation.x = 0
+    pose_goal.orientation.y = 0
+    pose_goal.orientation.z = 0
+    pose_goal.position.x = 0.5
+    pose_goal.position.y = -0.5
+    pose_goal.position.z = 0.5
+    self.planner.goToPose(pose_goal)
     #============================Lo que hice===================
 
     rospy.signal_shutdown("Task Completed")
