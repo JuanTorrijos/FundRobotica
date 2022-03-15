@@ -28,6 +28,7 @@ class Planner():
     scene = moveit_commander.PlanningSceneInterface()#No sabemos si es correcto
     tfBuffer = tf2_ros.Buffer()
     listener = tf2_ros.TransformListener(tfBuffer)
+    self.attach_srv = rospy.ServiceProxy('AttachObject', AttachObject)
 
     #trans = tf.TransformListener()
 
@@ -101,19 +102,23 @@ class Planner():
 
   def detachBox(self,box_name):
     #TODO: Open the gripper and call the service that releases the box
-    pass
+    self.attach_srv(False, box_name)
 
 
   def attachBox(self,box_name):
     #TODO: Close the gripper and call the service that releases the box
-      grasping_group = 'xarm_gripper'
-      touch_links = self.robot.get_link_names(group=grasping_group)
-      self.scene.attach_box(self.eef_link, self.box_name, touch_links=touch_links)
+##      attach = path_planner.srv.AttachObject("BlueBox")
+##      print (attach)
+##      grasping_group = 'xarm_gripper'
+##      touch_links = self.robot.get_link_names(group=grasping_group)
+##      self.scene.attach_box(self.eef_link, self.box_name, touch_links=touch_links
+      
+      self.attach_srv(True, box_name)
 ##      hand_group = moveit_commander.MoveGroupCommander("xarm_gripper")
 ##      hand_group.set_named_target("close")
 ##      plan2 = hand_group.go()
       
-      return self.wait_for_state_update(box_name, False, True)
+      #return self.wait_for_state_update(box_name, False, True)
 
 
 class myNode():
@@ -146,11 +151,14 @@ class myNode():
     #TODO: Main code that contains the aplication
     self.planner = Planner()
     self.planner.addObstacles()
+    box = "RedBox"
     
+    #self.planner.detachBox("BlueBox")
     hand_group = moveit_commander.MoveGroupCommander("xarm_gripper")
     hand_group.set_named_target("open")
     plan2 = hand_group.go()
-    pos_box = self.tf_goal("RedBox")
+    pos_box = self.tf_goal(box)
+    deposit = self.tf_goal("DepositBoxRed")
     print("pos in x",pos_box.transform.translation.x)
     print("pos in y",pos_box.transform.translation.y)
     print("pos in z",pos_box.transform.translation.z)
@@ -161,6 +169,7 @@ class myNode():
     #print("pos_box",pos_box)
     #pos_box.TransformStamped(X)
     pose_goal = Pose()
+    dep_pose = Pose()
     
     Tbox_x = pos_box.transform.translation.x
     Tbox_y = pos_box.transform.translation.y
@@ -169,12 +178,23 @@ class myNode():
 
     pose_goal.position.x = Tbox_x
     pose_goal.position.y = Tbox_y
-    pose_goal.position.z = Tbox_z - 0.1
+    pose_goal.position.z = Tbox_z
     pose_goal.orientation.x = 1.0
     self.planner.goToPose(pose_goal)
-    self.planner.attachBox("RedBox")
+    self.planner.attachBox(box)
     pose_goal.position.z += 0.3
     self.planner.goToPose(pose_goal)
+    
+    Tdep_x = deposit.transform.translation.x
+    Tdep_y = deposit.transform.translation.y
+    Tdep_z = deposit.transform.translation.z
+    Rdep_x = deposit.transform.rotation.x
+    dep_pose.position.x = Tdep_x
+    dep_pose.position.y = Tdep_y
+    #dep_pose.position.z = Tdep_z
+    dep_pose.orientation.x = 1.0
+    self.planner.goToPose(dep_pose)
+    self.planner.detachBox(box)
 
     rospy.signal_shutdown("Task Completed")
 
